@@ -13,33 +13,36 @@ function getLocalData() {
 // UI components
 function getRenderBox(info) {
   return `
-  <div class="py-4 box">
-    <div class="outer border rounded shadow bg-white text-center px-3 py-2">
-      <h4 class="text-info">${info.name}</h4>
-      <div class="form-group row px-2 py-2">
-        <label class="col-3"> Key </label>
-        <input class="col-8" name="key${info.id}" type="text" class="form-control" />
-        <div class="text-center pt-3 w-100">
-          <button class="btn btn-outline-success btn-sm" onclick="show('${info.id}')">Submit</button>
-          <button class="ml-2 btn btn-outline-danger btn-sm" onclick="clean('${info.id}')">Clear</button>
-        </div>
+  <div class="py-2 col-md-4 px-3">
+    <div class="outer border rounded bg-white text-center">
+      <h6 class="text-white bg-info border-bottom py-2">${info.name}</h6>
+      <div class="form-group px-4 py-2 mb-0">
+        <input placeholder="Enter Key" name="key${info.id}" type="password" class="form-control  form-control-sm" />
       </div>
+      <div class="text-center row w-100 mx-0 my-0 mt-2 px-4">
+          <div class="col px-1"><button class="btn btn-outline-primary btn-sm btn-block" onclick="show('${info.id}')">Show</button></div>
+          <div class="col px-1"><button class="btn btn-outline-secondary btn-sm btn-block" onclick="clean('${info.id}')">Close</button></div>
+          <div class="col px-1"><button class="btn btn-outline-danger btn-sm btn-block" onclick="deleteData('${info.id}')">Delete</button></div>
+        </div>
       <hr />
       <div class="data" id="${info.id}">
       </div>
-      <button class="mb-2 btn btn-danger btn-sm" onclick="deleteData('${info.id}')">Delete Data</button>
+     
     </div>
   </div>`;
 }
 
 function getDataBox(info) {
-  return `<b> User: </b> ${info.username}
+  return `
+   <div class='px-2'>  
+  <b> User: </b> ${info.username}
       <br />
       <b> Password :</b> ${info.password}
       <br />
       <b> Password 2 : </b> ${info.password2}
       <br />
       <b> Others :</b> ${info.others}
+      </div>
       <hr />`;
 }
 
@@ -72,9 +75,11 @@ function clean(index) {
 
 // Other functions
 function deleteData(index) {
-  delete data[index];
-  localStorage.setItem(LOCAL_DATA, JSON.stringify(data));
-  renderData();
+  if (confirm("Are sure to delete?")) {
+    delete data[index];
+    localStorage.setItem(LOCAL_DATA, JSON.stringify(data));
+    renderData();
+  }
 }
 
 function deleteAll() {
@@ -88,9 +93,12 @@ function deleteAll() {
 function decrypt(info, key) {
   let decrypted = "";
   info = window.atob(info);
+  let extra = 0;
+  for (let i = 0; i < key.length; i++) extra += key.charCodeAt(i);
+  extra = extra % 256;
   for (let i = 0; i < info.length; i++) {
     decrypted += String.fromCharCode(
-      (info.charCodeAt(i) - key.charCodeAt(i % key.legth) + 256) % 256
+      (((info.charCodeAt(i) - key.charCodeAt(i % key.legth) + 256) % 256) - extra + 256) % 256
     );
   }
   return decrypted;
@@ -98,8 +106,13 @@ function decrypt(info, key) {
 
 function encrypt(info, key) {
   let encrypted = "";
+  let extra = 0;
+  for (let i = 0; i < key.length; i++) extra += key.charCodeAt(i);
+  extra = extra % 256;
   for (let i = 0; i < info.length; i++) {
-    encrypted += String.fromCharCode((info.charCodeAt(i) + key.charCodeAt(i % key.legth)) % 256);
+    encrypted += String.fromCharCode(
+      (((info.charCodeAt(i) + key.charCodeAt(i % key.legth)) % 256) + extra) % 256
+    );
   }
   return window.btoa(encrypted);
 }
