@@ -3,7 +3,7 @@
   "name": "Password protector",
   "lang": "en",
   "description": "a secure password protector app",
-  "start_url": "/",
+  "start_url": "/password",
   "background_color": "#00aae7",
   "theme_color": "#00aae7",
   "dir": "ltr",
